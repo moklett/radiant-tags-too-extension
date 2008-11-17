@@ -46,4 +46,16 @@ module TagsTooTags
       path_parts.join(' ')
     end
   end
+  
+  desc %{
+    Helps add SEO-friendly page titles to your <title> tag.  <r:seo_title/> will be replaced by the Radiant
+    "Keywords" field unless it is blank.  If it is blank, the default Page Title will be inserted.
+  
+    I chose the "Keywords" field to control my page title since the actual meta keywords are of questionable SEO
+    value, but rich page titles are definitely of high SEO value.
+  }
+  tag "seo_title" do |tag|
+    page = tag.locals.page
+    page.keywords.blank? ? page.title : page.keywords
+  end
 end
