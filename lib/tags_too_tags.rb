@@ -1,5 +1,10 @@
 module TagsTooTags
   include Radiant::Taggable
+  
+  def self.included(base)
+    base.extend(ActionView::Helpers::AssetTagHelper)
+    base.extend(ERB::Util)
+  end
 
   desc %{ Allows access and optional matching to different parts of the current url path.
 
@@ -56,6 +61,39 @@ module TagsTooTags
   }
   tag "seo_title" do |tag|
     page = tag.locals.page
-    page.keywords.blank? ? page.title : page.keywords
+    page.keywords.blank? ? render_tag("title", tag) : page.keywords
+  end
+  
+  tag "box" do |tag|
+    css_classes = %w(box)
+    color = tag.attr.delete('color')
+    if color
+      css_classes << "#{color}box"
+    end
+    css_classes += (tag.attr.delete('class') || "").split
+    
+    heading = tag.attr.delete('heading')
+    
+    if heading.nil? && use_title_as_heading = tag.attr.delete('use_title_as_heading')
+      if use_title_as_heading == "true"
+        heading = tag.locals.page.title
+      end
+    end
+    
+    extras = []
+    tag.attr.each{|k,v| extras << %{#{k}="#{v}"}}
+
+    output = %{<div class="#{css_classes.join(' ')}" #{extras.join(' ')}>}
+    if heading
+      output << %{<h3 class="heading">#{heading}</h3>}
+    else
+      output << %{<div class="top"></div>}
+    end
+    
+    output << %{<div class="content clearfix">}
+    output << tag.expand
+    output << %{</div>}
+    output << %{</div>}
+    output
   end
 end
