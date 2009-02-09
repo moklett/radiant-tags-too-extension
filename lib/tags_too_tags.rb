@@ -20,15 +20,49 @@ module TagsTooTags
         <r:url/>
       </body>
       
-    Might give:
+    Would give:
     
       <body class="home services web-design"
         /services/web-design
       </body>
       
     
-    *Usage:*
+    You may also pass an integer to the "at" attribute to access a specific segment of the path.  Based on the above
+    setup, if the current page was "Web Design" (i.e. <r:url/> => /services/web-design)
     
+    <r:path at="1"/>  => 'home'        # Root is 1-based...
+    <r:path at="0"/>  => 'home'        # ... but '0' also grabs the root
+    <r:path at="2"/>  => 'services'
+    <r:path at="3"/>  => 'web-design'
+    <r:path at="4"/>  => ''            # Nothing here...
+    <r:path at="-1"/> => 'web-design'  # Negative values count back from the end, so -1 gets the last slug
+    
+    * Use Case:
+    
+    Say you have the following site tree:
+    
+    - Home (/)
+      - Articles (/articles)
+        - Awesome Article (/articles/awesome-article)
+        - Super Article (/articles/super-article)
+        
+    And for styling purposes you want to always be able to know what 2nd level page tree you are within.  The
+    following example shows one way to achieve this.
+    
+      <head>
+        <style>
+          .articles .list li {
+            /* special list styling */
+          }
+        </style>
+      </head>
+      <body class="<r:path at='2'/>"
+        <ul class="list">
+          <r:children:each>
+          <li><r:link/></li>
+          </r:children:each>
+        </ul>
+      </body>
   }
   tag "path" do |tag|
     path_parts = tag.locals.page.url.split('/')
